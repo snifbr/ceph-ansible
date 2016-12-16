@@ -4,7 +4,6 @@ set -xe
 # VARIABLES
 BASEDIR=$(dirname "$0")
 LOCAL_BRANCH=$(cd $BASEDIR && git rev-parse --abbrev-ref HEAD)
-BRANCHES="master ansible-1.9"
 ROLES="ceph-common ceph-mon ceph-osd ceph-mds ceph-rgw ceph-restapi ceph-agent ceph-fetch-keys ceph-rbd-mirror ceph-client"
 
 
@@ -63,7 +62,7 @@ for ROLE in $ROLES; do
   reset_hard_origin
   # First we filter branches by rewriting master with the content of roles/$ROLE
   # this gives us a new commit history
-  for BRANCH in $BRANCHES; do
+  for BRANCH in $(git branch -r | egrep 'origin/master|origin/ansible-1.9|origin/stable-' | grep -v origin/HEAD | cut -d '/' -f2); do
     git checkout -B $BRANCH origin/$BRANCH
     git filter-branch -f --prune-empty --subdirectory-filter roles/$ROLE
     git push -f $REMOTE $BRANCH
